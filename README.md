@@ -1,5 +1,5 @@
-# BlueSCSI
 
+# BlueSCSI
 BlueSCSI & ArdSCSino are hardware that reproduces SCSI devices (hard disks) with an Arduino STM32F103C (aka Blue Pill.)
 
 `BlueSCSI` created by [erichelgeson](https://github.com/erichelgeson) is a fork of `ArdSCSino-stm32` which adds:
@@ -8,18 +8,11 @@ BlueSCSI & ArdSCSino are hardware that reproduces SCSI devices (hard disks) with
 * An alternative power source if not able to be powered by the SCSI bus
 
 `ArdSCSino-stm32` created by [ztto](https://github.com/ztto/ArdSCSino-stm32) is the STM32 version of `ArdSCSino`
-
 `ArdSCSino` created by [Tambo (TNB Seisakusho)](https://twitter.com/h_koma2)
 
-# Purchase a Kit or Fully Assembled
 
-https://gum.co/bluescsi-1b
-
-# Questions?
-
-Join us in #bluescsi on [Discord](https://discord.gg/GKcvtgU7P9)
-
-Or open an issue on this repo.
+[<img src="http://assets.stickpng.com/images/580b57fcd9996e24bc43c462.png" width=300>](https://gum.co/bluescsi-1b)[<img src="https://fulltechpodcast.com/wp-content/uploads/2020/09/join-discord.png" width=300>](https://discord.gg/GKcvtgU7P9)
+Join us in #bluescsi on [Discord](https://discord.gg/GKcvtgU7P9) or open an issue on this repo.
 
 # Sections
  1. [Compatibility](#compatibility)
