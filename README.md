@@ -21,6 +21,9 @@ Join us in #bluescsi on [Discord](https://discord.gg/GKcvtgU7P9)
 
 Or open an issue on this repo.
 
+## [Compatibility](/#compatibility)
+
+
 ## Compatibility
 
 If your computer is not listed below - it may be compatible but there is no guarantee it will work. This device is designed and tested to work with pre-PowerPC Macs.
