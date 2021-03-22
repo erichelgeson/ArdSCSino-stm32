@@ -85,6 +85,20 @@ Any blank raw file will do. They are easy to come by as they are used in other d
 * Premade from savagetaylor.com - https://www.savagetaylor.com/downloads/downloads-macintosh/ 
 * Premade from RaSCSI - http://macintoshgarden.org/apps/rascsi-68kmla-edition
 
+### Make Your Own Disk Images
+
+Making a disk image is straight forward. This technique is useful when you would like a disk image larger than the pre-built images in the previous section.
+
+The following instructions demonstrates the process using [dd](https://ss64.com/osx/dd.html):
+ 1. Open terminal and navigate to a folder you're familiar with (e.g., `cd /Users`)
+ 2. The following command will create a blank disk image. You can modify the command to suit your use.
+    *  `dd if=/dev/zero of=example.hda bs=1m count=500`
+    * The `count` field defines the number of megabytes (`bs=1m`) the total disk image should be.
+    * The output file from the command is "example.hda". This can be changed in the `of=example.hda` field.
+ 3. Place the new blank disk image in the home directory of your SD card. This should be added alongside a working Mac OS disk image, such as the examples provided in the previous section.
+ 4. If you do not already have a tool to format SCSI drives, [download LIDO](https://macintoshgarden.org/apps/lido-756) from Mac Garden. You can use [Basilisk II](https://www.emaculation.com/doku.php/basiliskii_osx_setup) to move files and prepare your installation.
+ 5. After booting into your target machine with the working Mac OS disk image on your BlueSCSI from step 3, format the blank disk.
+
 ### Termination
 
 To enable termination place the two jumpers on the TERM block. Termination should be enabled if it is the last device in the chain - which is normally how it is used.
