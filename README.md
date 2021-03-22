@@ -37,7 +37,10 @@ Or open an issue on this repo.
     *  [Performance is slower than expected](#performance-is-slower-than-expected)
  6. [Development](#development)
     * [PlatformIO](#platformio)
+    * [Setup Arduino IDE (Depricated)](#setup-arduino-ide-depricated-do-not-use)
     * [Flashing](#flashing)
+      * [Using STLink V2](#using-stlink-v2-prefered)
+      * [Using UART Serial](#using-uart-serial)
 
 ## Compatibility
 
