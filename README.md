@@ -21,7 +21,7 @@ Join us in #bluescsi on [Discord](https://discord.gg/GKcvtgU7P9)
 
 Or open an issue on this repo.
 
-## [Compatibility](/#compatibility)
+## [Compatibility](#compatibility)
 
 
 ## Compatibility
