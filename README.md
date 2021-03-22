@@ -21,7 +21,21 @@ Join us in #bluescsi on [Discord](https://discord.gg/GKcvtgU7P9)
 
 Or open an issue on this repo.
 
-## [Compatibility](#compatibility)
+# Sections
+ 1 ## [Compatibility](#compatibility)
+ 2 ## [Performance](#performance)
+ 3 ## [Assembly](#assembly)
+ 4 ## [Usage](#usage)
+  * ### [Examples](#examples)
+  * ### [Bad](#bad)
+  * ### [Blanks & Premade Images](#blanks-&-premade-images
+  * ### [Custom Disk Images](#custom-disk-images)
+  * ### [Termination](#termination)
+ 5 ## [Troubleshooting](#troubleshooting)
+  * ### [Log Files](#log-files)
+  * ### [Verify you are not using a fake](#verify-you-are-not-using-a-fake)
+  * ### [Performance is slower than expected](#performance-is-slower-than-expected)
+
 
 
 ## Compatibility
@@ -88,7 +102,7 @@ Any blank raw file will do. They are easy to come by as they are used in other d
 * Premade from savagetaylor.com - https://www.savagetaylor.com/downloads/downloads-macintosh/ 
 * Premade from RaSCSI - http://macintoshgarden.org/apps/rascsi-68kmla-edition
 
-### Make Your Own Disk Images
+### Custom Disk Images
 
 Making a disk image is straight forward. This technique is useful when you would like a disk image larger than the pre-built images in the previous section.
 
