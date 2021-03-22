@@ -28,7 +28,7 @@ Or open an issue on this repo.
  4. [Usage](#usage)
     *  [Examples](#examples)
     *  [Bad](#bad)
-    *  [Blanks & Premade Images](#blanks-&-premade-images
+    *  [Blanks & Premade Images](#blanks-&-premade-images)
     *  [Custom Disk Images](#custom-disk-images)
     *  [Termination](#termination)
  5. [Troubleshooting](#troubleshooting)
