@@ -22,21 +22,22 @@ Join us in #bluescsi on [Discord](https://discord.gg/GKcvtgU7P9)
 Or open an issue on this repo.
 
 # Sections
- 1 ## [Compatibility](#compatibility)
- 2 ## [Performance](#performance)
- 3 ## [Assembly](#assembly)
- 4 ## [Usage](#usage)
-  * ### [Examples](#examples)
-  * ### [Bad](#bad)
-  * ### [Blanks & Premade Images](#blanks-&-premade-images
-  * ### [Custom Disk Images](#custom-disk-images)
-  * ### [Termination](#termination)
- 5 ## [Troubleshooting](#troubleshooting)
-  * ### [Log Files](#log-files)
-  * ### [Verify you are not using a fake](#verify-you-are-not-using-a-fake)
-  * ### [Performance is slower than expected](#performance-is-slower-than-expected)
-
-
+ 1. [Compatibility](#compatibility)
+ 2. [Performance](#performance)
+ 3. [Assembly](#assembly)
+ 4. [Usage](#usage)
+    *  [Examples](#examples)
+    *  [Bad](#bad)
+    *  [Blanks & Premade Images](#blanks-&-premade-images
+    *  [Custom Disk Images](#custom-disk-images)
+    *  [Termination](#termination)
+ 5. [Troubleshooting](#troubleshooting)
+    *  [Log Files](#log-files)
+    *  [Verify you are not using a fake](#verify-you-are-not-using-a-fake)
+    *  [Performance is slower than expected](#performance-is-slower-than-expected)
+ 6. [Development](#development)
+    * [PlatformIO](#platformio)
+    * [Flashing](#flashing)
 
 ## Compatibility
 
