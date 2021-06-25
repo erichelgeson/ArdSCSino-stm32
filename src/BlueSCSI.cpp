@@ -191,6 +191,9 @@ byte          m_buf[MAX_BLOCKSIZE+1]; // General purpose buffer + overrun fetch
 int           m_msc;
 byte          m_msb[256];             // Command storage bytes
 
+/* Configurable options */
+int           m_scsi_delay = 0;           // SCSI timing delay, default is none
+
 /*
  *  Data byte to BSRR register setting value and parity table
 */
@@ -248,6 +251,10 @@ static const byte db2scsiid[256]={
 #define LOG_FILENAME "LOG.txt"
 FsFile LOG_FILE;
 
+#define MAX_SCSI_VENDOR_LENGTH    8
+#define MAX_SCSI_PRODUCT_LENGTH   16
+#define MAX_SCSI_VERSION_LENGTH   4
+
 // SCSI Drive Vendor information
 byte SCSI_INFO_BUF[36] = {
   0x00, //device type
@@ -261,6 +268,53 @@ byte SCSI_INFO_BUF[36] = {
   'F', 'I', 'R', 'E', 'B', 'A', 'L', 'L', '1', ' ', ' ',' ', ' ', ' ', ' ', ' ', // product 16
   '1', '.', '0', ' ' // version 4
 };
+
+struct SCSI_INQUIRY_DATA
+{
+  union
+  {
+  struct {
+    // bitfields are in REVERSE order for ARM
+    // byte 1
+    byte peripheral_device_type:5;
+    byte peripheral_qualifier:3;
+    // byte 2
+    byte reserved_byte2:7;
+    byte rmb:1;
+    // byte 3
+    byte ansi_version:3;
+    byte always_zero_byte3:5;
+    // byte 4
+    byte response_format:4;
+    byte reserved_byte4:2;
+    byte tiop:1;
+    byte always_zero_byte4:1;
+    // byte 4
+    byte additional_length;
+    // byte 5-6
+    byte reserved_byte5;
+    byte reserveded_byte6;
+    // byte 7
+    byte sync:1;
+    byte always_zero_byte7_more:4;
+    byte always_zero_byte7:3;
+    // byte 8-15
+    char vendor[8];
+    // byte 16-31
+    char product[16];
+    // byte 32-35
+    char revision[4];
+    // byte 36
+    byte release;
+    // 37-46
+    char revision_date[10];
+  };
+  // raw bytes
+  byte raw[46];
+  };
+};
+
+struct SCSI_INQUIRY_DATA scsi_inquiry_block;
 
 void onFalseInit(void);
 void noSDCardFound(void);
@@ -288,30 +342,96 @@ inline byte readIO(void)
 // File must be well formed or you will get junk in the SCSI Vendor fields.
 void readSCSIDeviceConfig() {
   FsFile config_file = SD.open("scsi-config.txt", O_RDONLY);
+  char buffer[64] = {0};
+  String key, value;
+  unsigned len = 0;
+
   if (!config_file.isOpen()) {
     return;
   }
-  char vendor[9];
-  memset(vendor, 0, sizeof(vendor));
-  config_file.readBytes(vendor, sizeof(vendor));
-  LOG_FILE.print("SCSI VENDOR: ");
-  LOG_FILE.println(vendor);
-  memcpy(&(SCSI_INFO_BUF[8]), vendor, 8);
 
-  char product[17];
-  memset(product, 0, sizeof(product));
-  config_file.readBytes(product, sizeof(product));
-  LOG_FILE.print("SCSI PRODUCT: ");
-  LOG_FILE.println(product);
-  memcpy(&(SCSI_INFO_BUF[16]), product, 16);
+  while (config_file.fgets(buffer, sizeof(buffer)))
+  {
+    key = strtok(buffer, "=");
+    if (!key) continue;
+    value = strtok(NULL, "=");
+    if (!value) continue;
 
-  char version[5];
-  memset(version, 0, sizeof(version));
-  config_file.readBytes(version, sizeof(version));
-  LOG_FILE.print("SCSI VERSION: ");
-  LOG_FILE.println(version);
-  memcpy(&(SCSI_INFO_BUF[32]), version, 4);
-  config_file.close();
+    if(key.equalsIgnoreCase("vendor"))
+    {
+      len = sizeof(scsi_inquiry_block.vendor) < value.length() ? sizeof(scsi_inquiry_block.vendor) : value.length() - 1;
+      memset(scsi_inquiry_block.vendor, 0, sizeof(scsi_inquiry_block.vendor));
+      memcpy(scsi_inquiry_block.vendor, value.c_str(), len);
+      LOG_FILE.print("SCSI VENDOR: ");
+      LOG_FILE.write(scsi_inquiry_block.vendor, len);
+      LOG_FILE.println();
+    }
+    else if(key.equalsIgnoreCase("product"))
+    {
+      len = sizeof(scsi_inquiry_block.product) < value.length() ? sizeof(scsi_inquiry_block.product) : value.length() - 1;
+      memset(scsi_inquiry_block.product, 0, sizeof(scsi_inquiry_block.product));
+      memcpy(scsi_inquiry_block.product, value.c_str(), len);
+      LOG_FILE.print("SCSI PRODUCT: ");
+      LOG_FILE.write(scsi_inquiry_block.product, len);
+      LOG_FILE.println();
+    }
+    else if(key.equalsIgnoreCase("version"))
+    {
+      len = sizeof(scsi_inquiry_block.revision) < value.length() ? sizeof(scsi_inquiry_block.revision) : value.length() - 1;
+      memset(scsi_inquiry_block.revision, 0, sizeof(scsi_inquiry_block.revision));
+      memcpy(scsi_inquiry_block.revision, value.c_str(), len);
+      LOG_FILE.print("SCSI REVISION: ");
+      LOG_FILE.write(scsi_inquiry_block.revision, len);
+      LOG_FILE.println();
+    }
+    else if(key.equalsIgnoreCase("delay"))
+    {
+      m_scsi_delay = value.toInt();
+      LOG_FILE.print("SCSI Delay: ");
+      if(m_scsi_delay < 0 || m_scsi_delay > 1500)
+      {
+        m_scsi_delay = 0;
+        LOG_FILE.println("INVALID");
+      }
+      else
+      {
+        LOG_FILE.println(value.c_str());
+      }
+    }
+  }
+  LOG_FILE.sync();
+}
+
+// read SD information and print to logfile
+void readSDCardInfo()
+{
+  cid_t sd_cid;
+
+  if(SD.card()->readCID(&sd_cid))
+  {
+    LOG_FILE.print("Sd MID:");
+    LOG_FILE.print(sd_cid.mid, 16);
+    LOG_FILE.print(" OID:");
+    LOG_FILE.print(sd_cid.oid[0]);
+    LOG_FILE.println(sd_cid.oid[1]);
+
+    LOG_FILE.print("Sd Name:");
+    LOG_FILE.print(sd_cid.pnm[0]);
+    LOG_FILE.print(sd_cid.pnm[1]);
+    LOG_FILE.print(sd_cid.pnm[2]);
+    LOG_FILE.print(sd_cid.pnm[3]);
+    LOG_FILE.println(sd_cid.pnm[4]);
+
+    LOG_FILE.print("Sd Date:");
+    LOG_FILE.print(sd_cid.mdt_month);
+    LOG_FILE.print("/20"); // CID year is 2000 + high/low
+    LOG_FILE.print(sd_cid.mdt_year_high);
+    LOG_FILE.println(sd_cid.mdt_year_low);
+
+    LOG_FILE.print("Sd Serial:");
+    LOG_FILE.println(sd_cid.psn);
+    LOG_FILE.sync();
+  }
 }
 
 /*
@@ -359,12 +479,12 @@ void setup()
   // PA15 / PB3 / PB4 Cannot be used
   // JTAG Because it is used for debugging.
   // Comment out for Debugging in PlatformIO
-  disableDebugPorts();
+  // disableDebugPorts();
 
   // Serial initialization
 #if DEBUG
   Serial.begin(9600);
-  while (!Serial);
+  // while (!Serial);
 #endif
 
   // PIN initialization
@@ -407,12 +527,20 @@ void setup()
     noSDCardFound();
   }
   initFileLog();
+
+  // initialize default SCSI_INQUIRY data
+  memset(&scsi_inquiry_block, 0, sizeof(scsi_inquiry_block));
+  memcpy(&scsi_inquiry_block, &SCSI_INFO_BUF, sizeof(SCSI_INFO_BUF));
+
   readSCSIDeviceConfig();
+  readSDCardInfo();
 
   //Sector data overrun byte setting
   m_buf[MAX_BLOCKSIZE] = 0xff; // DB0 all off,DBP off
   //HD image file open
   scsi_id_mask = 0x00;
+
+
 
   // Iterate over the root path in the SD card looking for candidate image files.
   SdFile root;
@@ -474,7 +602,7 @@ void setup()
  * Setup initialization logfile
  */
 void initFileLog() {
-  LOG_FILE = SD.open(LOG_FILENAME, O_WRONLY | O_CREAT);
+  LOG_FILE = SD.open(LOG_FILENAME, O_WRONLY | O_CREAT | O_TRUNC);
   LOG_FILE.println("BlueSCSI <-> SD - https://github.com/erichelgeson/BlueSCSI");
   LOG_FILE.print("VERSION: ");
   LOG_FILE.println(VERSION);
@@ -557,6 +685,7 @@ void noSDCardFound(void)
       delay(250);
     }
     delay(3000);
+    LOGN("No SD card found");
   }
 }
 
@@ -837,7 +966,7 @@ byte onInquiryCommand(byte len)
 #else
 byte onInquiryCommand(byte len)
 {
-  writeDataPhase(len < 36 ? len : 36, SCSI_INFO_BUF);
+  writeDataPhase(sizeof(scsi_inquiry_block), scsi_inquiry_block.raw);
   return 0x00;
 }
 #endif
@@ -1225,6 +1354,9 @@ void loop()
     }
   }
 
+  // delay from scsiconfig
+  delayMicroseconds(m_scsi_delay);
+  
   LOG("Command:");
   SCSI_OUT(vMSG,inactive) // gpio_write(MSG, low);
   SCSI_OUT(vCD ,  active) // gpio_write(CD, high);
