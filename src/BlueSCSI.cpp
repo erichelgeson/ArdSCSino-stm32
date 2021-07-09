@@ -1289,25 +1289,33 @@ void loop()
   SCSI_OUT(vCD ,  active) // gpio_write(CD, high);
   SCSI_OUT(vIO ,inactive) // gpio_write(IO, low);
   
-  int len;
   byte cmd[12];
-  cmd[0] = readHandshake(); if(m_isBusReset) goto BusFree;
+  int cmdCount;
+  cmd[0] = readHandshake(); 
+  if(m_isBusReset) 
+    goto BusFree;
+
   LOGHEX(cmd[0]);
-  // Command length selection, reception
-  static const int cmd_class_len[8]={6,10,10,6,6,12,6,6};
-  len = cmd_class_len[cmd[0] >> 5];
-  cmd[1] = readHandshake(); LOG(":");LOGHEX(cmd[1]); if(m_isBusReset) goto BusFree;
-  cmd[2] = readHandshake(); LOG(":");LOGHEX(cmd[2]); if(m_isBusReset) goto BusFree;
-  cmd[3] = readHandshake(); LOG(":");LOGHEX(cmd[3]); if(m_isBusReset) goto BusFree;
-  cmd[4] = readHandshake(); LOG(":");LOGHEX(cmd[4]); if(m_isBusReset) goto BusFree;
-  cmd[5] = readHandshake(); LOG(":");LOGHEX(cmd[5]); if(m_isBusReset) goto BusFree;
-  // Receive the remaining commands
-  for(int i = 6; i < len; i++ ) {
-    cmd[i] = readHandshake();
+  
+  if(cmd[0] >= 0x20 && cmd[0] <= 0x7D)
+  {
+    cmdCount = 10;
+  }
+  else
+  {
+    cmdCount = 6;
+  }
+
+  for(int i=1; i<cmdCount; i++)
+  {
+    cmd[i] = readHandshake(); 
     LOG(":");
     LOGHEX(cmd[i]);
-    if(m_isBusReset) goto BusFree;
+
+    if(m_isBusReset) 
+      goto BusFree;
   }
+
   // LUN confirmation
   m_sts = cmd[1]&0xe0;      // Preset LUN in status byte
   m_lun = m_sts>>5;
